@@ -154,7 +154,9 @@ function admin_panel_aspirantes(){
     {
         $total = $aspirante->nivel_html + $aspirante->nivel_css + 
             $aspirante->nivel_js + $aspirante->nivel_php;
-        echo "<tr><td><a href='#' title='$aspirante->motivacion'>$aspirante->nombre</a></td>
+            $motivacion = esc_textarea($aspirante->motivacion);
+            $nombre = esc_textarea($aspirante->nombre);
+            echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>
             <td>$aspirante->correo</td>
             <td>$aspirante->nivel_html</td><td>$aspirante->nivel_css</td>
             <td>$aspirante->nivel_js</td><td>$aspirante->nivel_php</td>
