@@ -2,22 +2,9 @@
 /*
 Plugin Name:  KFP Aspirantes
 Description:  Formulario para valorar el nivel de partida de los alumnos aspirantes. Utiliza el shortcode [kfp_form_aspirante] para que el formulario aparezca en la página o el post que desees.
-Version:      0.0.1
+Version:      0.1.1
 Author:       Juanan Ruiz
 Author URI:   https://kungfupress.com/
-*/
-
-/*
-* Nombre
-* Correo 
-* Experiencia con HTML
-* Experiencia con CSS
-* Experiencia con JavaScript
-* Experiencia con PHP
-* Experiencia con WordPress
-* ¿Cuántas horas puedes dedicar a la semana a tu aprendizaje? (se realista) - 0 - 50
-* ¿Porqué quieres aprender a programar en WordPress?
-* Aceptar tratamiento de datos y conocimiento derechos
 */
 
 // El formulario puede insertarse en cualquier sitio con este shortcode
@@ -26,9 +13,9 @@ add_shortcode('kfp_form_aspirante', 'kfp_form_aspirante');
 function kfp_form_aspirante() {
     global $wpdb;
     // Crea la tabla si no existe
-    $tabla = $wpdb->prefix . 'aspirante';
+    $tabla_aspirantes = $wpdb->prefix . 'aspirante';
     $charset_collate = $wpdb->get_charset_collate();
-    $query = "CREATE TABLE IF NOT EXISTS $tabla (
+    $query = "CREATE TABLE IF NOT EXISTS $tabla_aspirantes (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         nombre varchar(40) NOT NULL,
         correo varchar(100) NOT NULL,
@@ -49,7 +36,7 @@ function kfp_form_aspirante() {
     if( $_POST['nombre'] != '' && is_email($_POST['correo']) 
         && wp_verify_nonce( $_POST['aspirante_nonce'], 'graba_aspirante')) {
 
-        $tabla = $wpdb->prefix . 'aspirante'; //hace falta repetir?
+        $tabla_aspirantes = $wpdb->prefix . 'aspirante'; //hace falta repetir?
         $nombre = sanitize_text_field($_POST['nombre']);
         $correo = $_POST['correo'];
         $nivel_html = (int)$_POST['nivel_html'];
@@ -61,7 +48,7 @@ function kfp_form_aspirante() {
         $created_at = date('Y-m-d H:i:s');
 
         $wpdb->insert(
-            $tabla,
+            $tabla_aspirantes,
             array(
                 'nombre' => $nombre,
                 'correo' => $correo,
@@ -144,4 +131,34 @@ function kfp_form_aspirante() {
     <?php
 
     return ob_get_clean();
+}
+
+// Aquí comienza la parte administrativa del plugin
+add_action("admin_menu", "kfp_crear_menu");
+    
+function kfp_crear_menu() {
+    add_menu_page('Formulario Aspirantes', 'Aspirantes', 'manage_options', 
+        'kfp_menu_aspirante', 'admin_panel_aspirantes');
+}
+
+function admin_panel_aspirantes(){
+    global $wpdb;
+    $tabla_aspirantes = $wpdb->prefix . 'aspirante';
+    echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
+    echo '<table class="wp-list-table widefat fixed striped">';
+    echo '<thead><tr><th width="30%">Nombre</th><th width="20%">Correo</th><th>HTML</th><th>CSS</th><th>JS</th>
+        <th>PHP</th><th>Total</th></tr></thead>';
+    echo '<tbody id="the-list">';
+    $aspirantes = $wpdb->get_results("SELECT * FROM $tabla_aspirantes");
+    foreach ( $aspirantes as $aspirante ) 
+    {
+        $total = $aspirante->nivel_html + $aspirante->nivel_css + 
+            $aspirante->nivel_js + $aspirante->nivel_php;
+        echo "<tr><td><a href='#' title='$aspirante->motivacion'>$aspirante->nombre</a></td>
+            <td>$aspirante->correo</td>
+            <td>$aspirante->nivel_html</td><td>$aspirante->nivel_css</td>
+            <td>$aspirante->nivel_js</td><td>$aspirante->nivel_php</td>
+            <td>$total</td></tr>";
+    }
+    echo '</tbody></table></div>';
 }
