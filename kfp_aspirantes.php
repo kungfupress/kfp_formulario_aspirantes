@@ -1,17 +1,19 @@
 <?php
 /*
 Plugin Name:  KFP Aspirantes
-Description:  Formulario para valorar el nivel de partida de los alumnos aspirantes. Utiliza el shortcode [kfp_form_aspirante] para que el formulario aparezca en la página o el post que desees.
+Description:  Formulario para valorar el nivel de partida de los alumnos 
+aspirantes. Utiliza el shortcode [kfp_aspirante_form] para que el formulario 
+aparezca en la página o el post que desees.
 Version:      0.1.1
 Author:       Juanan Ruiz
 Author URI:   https://kungfupress.com/
 */
 
-// El formulario puede insertarse en cualquier sitio con este shortcode
-add_shortcode('kfp_form_aspirante', 'kfp_form_aspirante');
+// Cuando el plugin se active se crea la tabla del mismo si no existe
+register_activation_hook(__FILE__, 'kfp_aspirante_init');
 
-function kfp_form_aspirante() {
-    global $wpdb;
+function kfp_aspirante_init() {
+    global $wpdb; // Este objeto global nos permite trabajar con la BD de WP
     // Crea la tabla si no existe
     $tabla_aspirantes = $wpdb->prefix . 'aspirante';
     $charset_collate = $wpdb->get_charset_collate();
@@ -29,9 +31,22 @@ function kfp_form_aspirante() {
         created_at datetime NOT NULL,
         UNIQUE (id)
         ) $charset_collate;";
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' ); // ???
-    dbDelta( $query ); // ???
+    // La función dbDelta que nos permite crear tablas de manera segura se
+    // define en el fichero upgrade.php que se incluye a continuación
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $query );
+}
 
+
+// El formulario puede insertarse en cualquier sitio con este shortcode
+// El código de la función que carga el shortcode hace una doble función:
+// * Graba los datos en la tabla si ha habido un envío desde el formulario
+// * Muestra el formulario
+
+add_shortcode('kfp_aspirante_form', 'kfp_aspirante_form');
+
+function kfp_aspirante_form() {
+    global $wpdb;
     // Si viene del formulario  grabamos en la base de datos
     if( $_POST['nombre'] != '' && is_email($_POST['correo']) 
         && wp_verify_nonce( $_POST['aspirante_nonce'], 'graba_aspirante')) {
@@ -63,7 +78,8 @@ function kfp_form_aspirante() {
         );
         echo "<p class='exito'><b>Tus datos han sido registrados</b>. Gracias por tu interés. En breve contactaré contigo.<p>";
     }
-    wp_enqueue_style('css_aspirantes',plugins_url('style.css', __FILE__));
+    // Carga esta hoja de estilo para poner más bonito el formulario
+    wp_enqueue_style('css_aspirante',plugins_url('style.css', __FILE__));
     ob_start();
     ?>
     <form action="<?php get_the_permalink(); ?>" method="post" id="form_aspirante" class="cuestionario">
@@ -134,33 +150,36 @@ function kfp_form_aspirante() {
 }
 
 // Aquí comienza la parte administrativa del plugin
-add_action("admin_menu", "kfp_crear_menu");
+add_action("admin_menu", "kfp_aspirante_menu");
     
-function kfp_crear_menu() {
+function kfp_aspirante_menu() {
     add_menu_page('Formulario Aspirantes', 'Aspirantes', 'manage_options', 
-        'kfp_menu_aspirante', 'admin_panel_aspirantes');
+        'kfp_aspirante_menu', 'kfp_aspirante_admin');
 }
 
-function admin_panel_aspirantes(){
+function kfp_aspirante_admin(){
     global $wpdb;
     $tabla_aspirantes = $wpdb->prefix . 'aspirante';
     echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
     echo '<table class="wp-list-table widefat fixed striped">';
     echo '<thead><tr><th width="30%">Nombre</th><th width="20%">Correo</th><th>HTML</th><th>CSS</th><th>JS</th>
-        <th>PHP</th><th>Total</th></tr></thead>';
+        <th>PHP</th><th>WP</th><th>Total</th></tr></thead>';
     echo '<tbody id="the-list">';
     $aspirantes = $wpdb->get_results("SELECT * FROM $tabla_aspirantes");
     foreach ( $aspirantes as $aspirante ) 
     {
-        $total = $aspirante->nivel_html + $aspirante->nivel_css + 
-            $aspirante->nivel_js + $aspirante->nivel_php;
-            $motivacion = esc_textarea($aspirante->motivacion);
-            $nombre = esc_textarea($aspirante->nombre);
-            echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>
-            <td>$aspirante->correo</td>
-            <td>$aspirante->nivel_html</td><td>$aspirante->nivel_css</td>
-            <td>$aspirante->nivel_js</td><td>$aspirante->nivel_php</td>
-            <td>$total</td></tr>";
+        $nombre = esc_textarea($aspirante->nombre);
+        $correo = esc_textarea($aspirante->correo);
+        $motivacion = esc_textarea($aspirante->motivacion);
+        $nivel_html = (int)$aspirante->nivel_html;
+        $nivel_css = (int)$aspirante->nivel_css;
+        $nivel_js = (int)$aspirante->nivel_js;
+        $nivel_php = (int)$aspirante->nivel_php;
+        $nivel_wp = (int)$aspirante->nivel_wp;
+        $total = $nivel_html + $nivel_css + $nivel_js + $nivel_php + $nivel_wp;
+        echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>
+        <td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>
+        <td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td><td>$total</td></tr>";
     }
     echo '</tbody></table></div>';
 }
