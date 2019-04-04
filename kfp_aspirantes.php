@@ -1,18 +1,31 @@
 <?php
-/*
-Plugin Name:  KFP Aspirantes
-Description:  Formulario para valorar el nivel de partida de los alumnos 
-aspirantes. Utiliza el shortcode [kfp_aspirante_form] para que el formulario 
-aparezca en la página o el post que desees.
-Version:      0.1.1
-Author:       Juanan Ruiz
-Author URI:   https://kungfupress.com/
-*/
+/**
+ * Plugin Name:  KFP Aspirantes
+ * Description:  Formulario para valorar el nivel de partida de los alumnos 
+ * aspirantes. Utiliza el shortcode [kfp_aspirante_form] para que el formulario 
+ * aparezca en la página o el post que desees.
+ * Version:      0.1.1
+ * Author:       Juanan Ruiz
+ * Author URI:   https://kungfupress.com/
+ * PHP Version:  5.6
+ *
+ * @category Form
+ * @package  KFP
+ * @author   Juanan Ruiz <juananruizrivas@gmail.com>
+ * @license  GPLv2 http://www.gnu.org/licenses/gpl-2.0.txt
+ * @link     https://kungfupress.com
+ */
 
 // Cuando el plugin se active se crea la tabla del mismo si no existe
-register_activation_hook(__FILE__, 'kfp_aspirante_init');
+register_activation_hook(__FILE__, 'Kfp_Aspirante_init');
 
-function kfp_aspirante_init() {
+/**
+ * Realiza las acciones necesarias para configurar el plugin cuando se activa
+ *
+ * @return void
+ */
+function Kfp_Aspirante_init() 
+{
     global $wpdb; // Este objeto global nos permite trabajar con la BD de WP
     // Crea la tabla si no existe
     $tabla_aspirantes = $wpdb->prefix . 'aspirante';
@@ -33,8 +46,8 @@ function kfp_aspirante_init() {
         ) $charset_collate;";
     // La función dbDelta que nos permite crear tablas de manera segura se
     // define en el fichero upgrade.php que se incluye a continuación
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-    dbDelta( $query );
+    include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta($query);
 }
 
 
@@ -43,14 +56,20 @@ function kfp_aspirante_init() {
 // * Graba los datos en la tabla si ha habido un envío desde el formulario
 // * Muestra el formulario
 
-add_shortcode('kfp_aspirante_form', 'kfp_aspirante_form');
+add_shortcode('kfp_aspirante_form', 'Kfp_Aspirante_form');
 
-function kfp_aspirante_form() {
+/**
+ * Crea y procesa el formulario que rellenan los aspirantes
+ *
+ * @return void
+ */
+function Kfp_Aspirante_form() 
+{
     global $wpdb;
     // Si viene del formulario  grabamos en la base de datos
-    if( $_POST['nombre'] != '' && is_email($_POST['correo']) 
-        && wp_verify_nonce( $_POST['aspirante_nonce'], 'graba_aspirante')) {
-
+    if ($_POST['nombre'] != '' && is_email($_POST['correo']) 
+        && wp_verify_nonce($_POST['aspirante_nonce'], 'graba_aspirante')
+    ) {
         $tabla_aspirantes = $wpdb->prefix . 'aspirante'; //hace falta repetir?
         $nombre = sanitize_text_field($_POST['nombre']);
         $correo = $_POST['correo'];
@@ -76,10 +95,11 @@ function kfp_aspirante_form() {
                 'created_at' => $created_at,
             )
         );
-        echo "<p class='exito'><b>Tus datos han sido registrados</b>. Gracias por tu interés. En breve contactaré contigo.<p>";
+        echo "<p class='exito'><b>Tus datos han sido registrados</b>. Gracias 
+            por tu interés. En breve contactaré contigo.<p>";
     }
     // Carga esta hoja de estilo para poner más bonito el formulario
-    wp_enqueue_style('css_aspirante',plugins_url('style.css', __FILE__));
+    wp_enqueue_style('css_aspirante', plugins_url('style.css', __FILE__));
     ob_start();
     ?>
     <form action="<?php get_the_permalink(); ?>" method="post" id="form_aspirante" class="cuestionario">
@@ -95,40 +115,56 @@ function kfp_aspirante_form() {
         <div class="form-input">
             <label for="nivel_html">¿Cuál es tu nivel de HTML?</label>
             <input type="radio" name="nivel_html" value="1" required> Nada
-            <br><input type="radio" name="nivel_html" value="2" required> Estoy aprendiendo
-            <br><input type="radio" name="nivel_html" value="3" required> Tengo experiencia
-            <br><input type="radio" name="nivel_html" value="4" required> Lo domino al dedillo
+            <br><input type="radio" name="nivel_html" value="2" required> Estoy 
+                aprendiendo
+            <br><input type="radio" name="nivel_html" value="3" required> Tengo 
+                experiencia
+            <br><input type="radio" name="nivel_html" value="4" required> Lo 
+                domino al dedillo
         </div>
         <div class="form-input">
             <label for="nivel_css">¿Cuál es tu nivel de CSS?</label>
             <input type="radio" name="nivel_css" value="1" required> Nada
-            <br><input type="radio" name="nivel_css" value="2" required> Estoy aprendiendo
-            <br><input type="radio" name="nivel_css" value="3" required> Tengo experiencia
-            <br><input type="radio" name="nivel_css" value="4" required> Lo domino al dedillo
+            <br><input type="radio" name="nivel_css" value="2" required> Estoy 
+                aprendiendo
+            <br><input type="radio" name="nivel_css" value="3" required> Tengo 
+                experiencia
+            <br><input type="radio" name="nivel_css" value="4" required> Lo 
+                domino al dedillo
         </div>
         <div class="form-input">
             <label for="nivel_js">¿Cuál es tu nivel de JavaScript?</label>
             <input type="radio" name="nivel_js" value="1" required> Nada
-            <br><input type="radio" name="nivel_js" value="2" required> Estoy aprendiendo
-            <br><input type="radio" name="nivel_js" value="3" required> Tengo experiencia
-            <br><input type="radio" name="nivel_js" value="4" required> Lo domino al dedillo
+            <br><input type="radio" name="nivel_js" value="2" required> Estoy 
+                aprendiendo
+            <br><input type="radio" name="nivel_js" value="3" required> Tengo 
+                experiencia
+            <br><input type="radio" name="nivel_js" value="4" required> Lo domino al 
+            dedillo
         </div>
         <div class="form-input">
             <label for="nivel_php">¿Cuál es tu nivel de PHP?</label>
             <input type="radio" name="nivel_php" value="1" required> Nada
-            <br><input type="radio" name="nivel_php" value="2" required> Estoy aprendiendo
-            <br><input type="radio" name="nivel_php" value="3" required> Tengo experiencia
-            <br><input type="radio" name="nivel_php" value="4" required> Lo domino al dedillo
+            <br><input type="radio" name="nivel_php" value="2" required> Estoy 
+                aprendiendo
+            <br><input type="radio" name="nivel_php" value="3" required> Tengo 
+                experiencia
+            <br><input type="radio" name="nivel_php" value="4" required> Lo domino 
+                al dedillo
         </div>
         <div class="form-input">
             <label for="nivel_wp">¿Cuál es tu nivel de WordPress?</label>
             <input type="radio" name="nivel_wp" value="1" required> Nada
-            <br><input type="radio" name="nivel_wp" value="2" required> Estoy aprendiendo
-            <br><input type="radio" name="nivel_wp" value="3" required> Tengo experiencia
-            <br><input type="radio" name="nivel_wp" value="4" required> Lo domino al dedillo
+            <br><input type="radio" name="nivel_wp" value="2" required> Estoy 
+            aprendiendo
+            <br><input type="radio" name="nivel_wp" value="3" required> Tengo 
+                experiencia
+            <br><input type="radio" name="nivel_wp" value="4" required> Lo domino 
+                al dedillo
         </div>
         <div class="form-input">
-            <label for="motivacion">¿Porqué quieres aprender a programar en WordPress?</label>
+            <label for="motivacion">¿Porqué quieres aprender a programar en 
+                    WordPress?</label>
             <textarea name="motivacion" id="motivacion" required></textarea>
         </div>
         <div class="form-input">
@@ -138,7 +174,8 @@ function kfp_aspirante_form() {
                 explicado más arriba. 
                 En cualquier momento puedes solicitar el acceso, la rectificación 
                 o la eliminación de tus datos desde esta página web.</label>
-            <input type="checkbox" id="aceptacion" name="aceptacion" required> Entiendo y acepto las condiciones
+            <input type="checkbox" id="aceptacion" name="aceptacion" required> 
+                Entiendo y acepto las condiciones
         </div>
         <div class="form-input">
             <input type="submit" value="Enviar">
@@ -150,24 +187,38 @@ function kfp_aspirante_form() {
 }
 
 // Aquí comienza la parte administrativa del plugin
-add_action("admin_menu", "kfp_aspirante_menu");
-    
-function kfp_aspirante_menu() {
-    add_menu_page('Formulario Aspirantes', 'Aspirantes', 'manage_options', 
-        'kfp_aspirante_menu', 'kfp_aspirante_admin');
+add_action("admin_menu", "Kfp_Aspirante_menu");
+
+/**
+ * Agrega el menú del plugin al panel de administración
+ *
+ * @return void
+ */
+function Kfp_Aspirante_menu() 
+{
+    add_menu_page(
+        'Formulario Aspirantes', 'Aspirantes', 'manage_options', 
+        'kfp_aspirante_menu', 'Kfp_Aspirante_admin'
+    );
 }
 
-function kfp_aspirante_admin(){
+/**
+ * Crea el contenido del panel de administración para el plugin
+ *
+ * @return void
+ */
+function Kfp_Aspirante_admin()
+{
     global $wpdb;
     $tabla_aspirantes = $wpdb->prefix . 'aspirante';
     echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
     echo '<table class="wp-list-table widefat fixed striped">';
-    echo '<thead><tr><th width="30%">Nombre</th><th width="20%">Correo</th><th>HTML</th><th>CSS</th><th>JS</th>
+    echo '<thead><tr><th width="30%">Nombre</th><th width="20%">Correo</th>
+        <th>HTML</th><th>CSS</th><th>JS</th>
         <th>PHP</th><th>WP</th><th>Total</th></tr></thead>';
     echo '<tbody id="the-list">';
     $aspirantes = $wpdb->get_results("SELECT * FROM $tabla_aspirantes");
-    foreach ( $aspirantes as $aspirante ) 
-    {
+    foreach ( $aspirantes as $aspirante ) {
         $nombre = esc_textarea($aspirante->nombre);
         $correo = esc_textarea($aspirante->correo);
         $motivacion = esc_textarea($aspirante->motivacion);
@@ -178,8 +229,9 @@ function kfp_aspirante_admin(){
         $nivel_wp = (int)$aspirante->nivel_wp;
         $total = $nivel_html + $nivel_css + $nivel_js + $nivel_php + $nivel_wp;
         echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>
-        <td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>
-        <td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td><td>$total</td></tr>";
+            <td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>
+            <td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>
+            <td>$total</td></tr>";
     }
     echo '</tbody></table></div>';
 }
