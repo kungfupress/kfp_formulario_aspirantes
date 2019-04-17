@@ -65,12 +65,12 @@ add_shortcode('kfp_aspirante_form', 'Kfp_Aspirante_form');
  */
 function Kfp_Aspirante_form() 
 {
-    global $wpdb;
+    global $wpdb;  // Este objeto global nos permite trabajar con la BD de WP
     // Si viene del formulario  grabamos en la base de datos
     if ($_POST['nombre'] != '' && is_email($_POST['correo']) 
         && wp_verify_nonce($_POST['aspirante_nonce'], 'graba_aspirante')
     ) {
-        $tabla_aspirantes = $wpdb->prefix . 'aspirante'; //hace falta repetir?
+        $tabla_aspirantes = $wpdb->prefix . 'aspirante';
         $nombre = sanitize_text_field($_POST['nombre']);
         $correo = $_POST['correo'];
         $nivel_html = (int)$_POST['nivel_html'];
