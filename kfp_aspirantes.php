@@ -40,6 +40,7 @@ function Kfp_Aspirante_init()
         nivel_js smallint(4) NOT NULL,
         nivel_php smallint(4) NOT NULL,
         nivel_wp smallint(4) NOT NULL,
+        aceptacion smallint(4) NOT NULL,
         motivacion text,
         created_at datetime NOT NULL,
         UNIQUE (id)
@@ -61,13 +62,20 @@ add_shortcode('kfp_aspirante_form', 'Kfp_Aspirante_form');
 /**
  * Crea y procesa el formulario que rellenan los aspirantes
  *
- * @return void
+ * @return string
  */
 function Kfp_Aspirante_form() 
 {
     global $wpdb;  // Este objeto global nos permite trabajar con la BD de WP
     // Si viene del formulario  grabamos en la base de datos
-    if ($_POST['nombre'] != '' && is_email($_POST['correo']) 
+    if ($_POST['nombre'] != '' 
+        && is_email($_POST['correo'])
+        && $_POST['nivel_html'] != '' 
+        && $_POST['nivel_css'] != ''
+        && $_POST['nivel_js'] != '' 
+        && $_POST['nivel_php'] != ''
+        && $_POST['nivel_wp'] != ''
+        && $_POST['aceptacion'] == '1' 
         && wp_verify_nonce($_POST['aspirante_nonce'], 'graba_aspirante')
     ) {
         $tabla_aspirantes = $wpdb->prefix . 'aspirante';
@@ -78,6 +86,7 @@ function Kfp_Aspirante_form()
         $nivel_js = (int)$_POST['nivel_js'];
         $nivel_php = (int)$_POST['nivel_php'];
         $nivel_wp = (int)$_POST['nivel_wp'];
+        $aceptacion = (int)$_POST['aceptacion'];
         $motivacion = sanitize_text_field($_POST['motivacion']);
         $created_at = date('Y-m-d H:i:s');
 
@@ -92,6 +101,7 @@ function Kfp_Aspirante_form()
                 'nivel_php' => $nivel_php,
                 'nivel_wp' => $nivel_wp,
                 'motivacion' => $motivacion,
+                'aceptacion' => $aceptacion,
                 'created_at' => $created_at,
             )
         );
@@ -102,7 +112,8 @@ function Kfp_Aspirante_form()
     wp_enqueue_style('css_aspirante', plugins_url('style.css', __FILE__));
     ob_start();
     ?>
-    <form action="<?php get_the_permalink(); ?>" method="post" id="form_aspirante" class="cuestionario">
+    <form action="<?php get_the_permalink(); ?>" method="post" id="form_aspirante" 
+        class="cuestionario">
         <?php wp_nonce_field('graba_aspirante', 'aspirante_nonce'); ?>
         <div class="form-input">
             <label for="nombre">Nombre</label>
@@ -174,8 +185,8 @@ function Kfp_Aspirante_form()
                 explicado más arriba. 
                 En cualquier momento puedes solicitar el acceso, la rectificación 
                 o la eliminación de tus datos desde esta página web.</label>
-            <input type="checkbox" id="aceptacion" name="aceptacion" required> 
-                Entiendo y acepto las condiciones
+            <input type="checkbox" id="aceptacion" name="aceptacion" value="1" 
+            required> Entiendo y acepto las condiciones
         </div>
         <div class="form-input">
             <input type="submit" value="Enviar">
