@@ -209,7 +209,7 @@ function Kfp_Aspirante_menu()
 {
     add_menu_page(
         'Formulario Aspirantes', 'Aspirantes', 'manage_options', 
-        'kfp_aspirante_menu', 'Kfp_Aspirante_admin'
+        'kfp_aspirante_menu', 'Kfp_Aspirante_admin', 'dashicons-feedback'
     );
 }
 
