@@ -181,7 +181,7 @@ function Kfp_Aspirante_form()
             <textarea name="motivacion" id="motivacion" required></textarea>
         </div>
         <div class="form-input">
-            <label for="aceptacion">Mi nombre es Juan Antonio Ruiz Rivas y me 
+            <label for="aceptacion">Mi nombre es Fulano de Tal y Cual y me 
                 comprometo a custodiar de manera responsable los datos que vas 
                 a enviar. Su única finalidad es la de participar en el proceso 
                 explicado más arriba. 
