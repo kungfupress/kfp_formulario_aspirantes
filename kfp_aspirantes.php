@@ -34,14 +34,14 @@ function Kfp_Aspirante_init()
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         nombre varchar(40) NOT NULL,
         correo varchar(100) NOT NULL,
-        web varchar(200),
         nivel_html smallint(4) NOT NULL,
         nivel_css smallint(4) NOT NULL,
         nivel_js smallint(4) NOT NULL,
         nivel_php smallint(4) NOT NULL,
         nivel_wp smallint(4) NOT NULL,
-        aceptacion smallint(4) NOT NULL,
         motivacion text,
+        aceptacion smallint(4) NOT NULL,
+        ip varchar(300),
         created_at datetime NOT NULL,
         UNIQUE (id)
         ) $charset_collate;";
@@ -86,8 +86,9 @@ function Kfp_Aspirante_form()
         $nivel_js = (int)$_POST['nivel_js'];
         $nivel_php = (int)$_POST['nivel_php'];
         $nivel_wp = (int)$_POST['nivel_wp'];
-        $aceptacion = (int)$_POST['aceptacion'];
         $motivacion = sanitize_text_field($_POST['motivacion']);
+        $aceptacion = (int)$_POST['aceptacion'];
+        $ip = Kfp_Obtener_IP_usuario();
         $created_at = date('Y-m-d H:i:s');
 
         $wpdb->insert(
@@ -102,6 +103,7 @@ function Kfp_Aspirante_form()
                 'nivel_wp' => $nivel_wp,
                 'motivacion' => $motivacion,
                 'aceptacion' => $aceptacion,
+                'ip' => $ip,
                 'created_at' => $created_at,
             )
         );
@@ -224,9 +226,9 @@ function Kfp_Aspirante_admin()
     $tabla_aspirantes = $wpdb->prefix . 'aspirante';
     echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
     echo '<table class="wp-list-table widefat fixed striped">';
-    echo '<thead><tr><th width="30%">Nombre</th><th width="20%">Correo</th>
+    echo '<thead><tr><th>Nombre</th><th>Correo</th>
         <th>HTML</th><th>CSS</th><th>JS</th>
-        <th>PHP</th><th>WP</th><th>Total</th></tr></thead>';
+        <th>PHP</th><th>WP</th><th>Total</th><th>Fecha</th></tr></thead>';
     echo '<tbody id="the-list">';
     $aspirantes = $wpdb->get_results("SELECT * FROM $tabla_aspirantes");
     foreach ( $aspirantes as $aspirante ) {
@@ -239,10 +241,32 @@ function Kfp_Aspirante_admin()
         $nivel_php = (int)$aspirante->nivel_php;
         $nivel_wp = (int)$aspirante->nivel_wp;
         $total = $nivel_html + $nivel_css + $nivel_js + $nivel_php + $nivel_wp;
+        $fecha = date('d-m-Y H:i:s', strtotime($aspirante->created_at));
         echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>
             <td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>
             <td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>
-            <td>$total</td></tr>";
+            <td>$total</td><td>$fecha</td></tr>";
     }
     echo '</tbody></table></div>';
+}
+
+/**
+ * Devuelve la IP del usuario que está visitando la página 
+ * Código fuente: https://stackoverflow.com/questions/6717926/function-to-get-user-ip-address
+ * 
+ * @return string
+ */
+function Kfp_Obtener_IP_usuario()
+{
+    foreach (array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED',
+        'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED',
+        'REMOTE_ADDR') as $key) {
+        if (array_key_exists($key, $_SERVER) === true) {
+            foreach (array_map('trim', explode(',', $_SERVER[$key])) as $ip) {
+                if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
+                    return $ip;
+                }
+            }
+        }
+    }
 }
