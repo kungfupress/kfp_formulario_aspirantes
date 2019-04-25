@@ -51,11 +51,10 @@ function Kfp_Aspirante_init()
     dbDelta($query);
 }
 
-
 // El formulario puede insertarse en cualquier sitio con este shortcode
 // El código de la función que carga el shortcode hace una doble función:
-// * Graba los datos en la tabla si ha habido un envío desde el formulario
-// * Muestra el formulario
+// 1-Graba los datos en la tabla si ha habido un envío desde el formulario
+// 2-Muestra el formulario
 
 add_shortcode('kfp_aspirante_form', 'Kfp_Aspirante_form');
 
