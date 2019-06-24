@@ -1,5 +1,5 @@
 form.cuestionario {
-    width: 600px;
+    max-width: 600px;
 }
 
 form.cuestionario label {
@@ -13,7 +13,8 @@ form.cuestionario .form-input {
 }
 
 form.cuestionario .form-input input[type='text'],
-form.cuestionario .form-input input[type='email'] {
+form.cuestionario .form-input input[type='email'],
+form.cuestionario textarea {
     display: block;
     width: 100%;
 }
