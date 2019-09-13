@@ -1,9 +1,7 @@
 <?php
 /**
  * Plugin Name:  KFP Aspirantes
- * Description:  Formulario para valorar el nivel de partida de los alumnos 
- * aspirantes. Utiliza el shortcode [kfp_aspirante_form] para que el formulario 
- * aparezca en la página o el post que desees.
+ * Description:  Formulario para valorar el nivel de partida de los alumnos aspirantes. Utiliza el shortcode [kfp_aspirante_form] para que el formulario aparezca en la página o el post que desees.
  * Version:      0.1.1
  * Author:       Juanan Ruiz
  * Author URI:   https://kungfupress.com/
@@ -24,7 +22,7 @@ register_activation_hook(__FILE__, 'Kfp_Aspirante_init');
  *
  * @return void
  */
-function Kfp_Aspirante_init() 
+function Kfp_Aspirante_init()
 {
     global $wpdb; // Este objeto global nos permite trabajar con la BD de WP
     // Crea la tabla si no existe
@@ -63,30 +61,30 @@ add_shortcode('kfp_aspirante_form', 'Kfp_Aspirante_form');
  *
  * @return string
  */
-function Kfp_Aspirante_form() 
+function Kfp_Aspirante_form()
 {
-    global $wpdb;  // Este objeto global nos permite trabajar con la BD de WP
+    global $wpdb; // Este objeto global nos permite trabajar con la BD de WP
     // Si viene del formulario  grabamos en la base de datos
-    if ($_POST['nombre'] != '' 
+    if (!empty($_POST)
+        && $_POST['nombre'] != ''
         && is_email($_POST['correo'])
-        && $_POST['nivel_html'] != '' 
+        && $_POST['nivel_html'] != ''
         && $_POST['nivel_css'] != ''
-        && $_POST['nivel_js'] != '' 
+        && $_POST['nivel_js'] != ''
         && $_POST['nivel_php'] != ''
         && $_POST['nivel_wp'] != ''
-        && $_POST['aceptacion'] == '1' 
-        && wp_verify_nonce($_POST['aspirante_nonce'], 'graba_aspirante')
+        && $_POST['aceptacion'] == '1'
     ) {
         $tabla_aspirantes = $wpdb->prefix . 'aspirante';
         $nombre = sanitize_text_field($_POST['nombre']);
         $correo = $_POST['correo'];
-        $nivel_html = (int)$_POST['nivel_html'];
-        $nivel_css = (int)$_POST['nivel_css'];
-        $nivel_js = (int)$_POST['nivel_js'];
-        $nivel_php = (int)$_POST['nivel_php'];
-        $nivel_wp = (int)$_POST['nivel_wp'];
+        $nivel_html = (int) $_POST['nivel_html'];
+        $nivel_css = (int) $_POST['nivel_css'];
+        $nivel_js = (int) $_POST['nivel_js'];
+        $nivel_php = (int) $_POST['nivel_php'];
+        $nivel_wp = (int) $_POST['nivel_wp'];
         $motivacion = sanitize_text_field($_POST['motivacion']);
-        $aceptacion = (int)$_POST['aceptacion'];
+        $aceptacion = (int) $_POST['aceptacion'];
         $ip = Kfp_Obtener_IP_usuario();
         $created_at = date('Y-m-d H:i:s');
 
@@ -106,16 +104,16 @@ function Kfp_Aspirante_form()
                 'created_at' => $created_at,
             )
         );
-        echo "<p class='exito'><b>Tus datos han sido registrados</b>. Gracias 
+        echo "<p class='exito'><b>Tus datos han sido registrados</b>. Gracias
             por tu interés. En breve contactaré contigo.<p>";
     }
     // Carga esta hoja de estilo para poner más bonito el formulario
     wp_enqueue_style('css_aspirante', plugins_url('style.css', __FILE__));
     ob_start();
     ?>
-    <form action="<?php get_the_permalink(); ?>" method="post" id="form_aspirante" 
+    <form action="<?php get_the_permalink();?>" method="post" id="form_aspirante"
         class="cuestionario">
-        <?php wp_nonce_field('graba_aspirante', 'aspirante_nonce'); ?>
+        <?php wp_nonce_field('graba_aspirante', 'aspirante_nonce');?>
         <div class="form-input">
             <label for="nombre">Nombre</label>
             <input type="text" name="nombre" id="nombre" required>
@@ -127,66 +125,66 @@ function Kfp_Aspirante_form()
         <div class="form-input">
             <label for="nivel_html">¿Cuál es tu nivel de HTML?</label>
             <input type="radio" name="nivel_html" value="1" required> Nada
-            <br><input type="radio" name="nivel_html" value="2" required> Estoy 
+            <br><input type="radio" name="nivel_html" value="2" required> Estoy
                 aprendiendo
-            <br><input type="radio" name="nivel_html" value="3" required> Tengo 
+            <br><input type="radio" name="nivel_html" value="3" required> Tengo
                 experiencia
-            <br><input type="radio" name="nivel_html" value="4" required> Lo 
+            <br><input type="radio" name="nivel_html" value="4" required> Lo
                 domino al dedillo
         </div>
         <div class="form-input">
             <label for="nivel_css">¿Cuál es tu nivel de CSS?</label>
             <input type="radio" name="nivel_css" value="1" required> Nada
-            <br><input type="radio" name="nivel_css" value="2" required> Estoy 
+            <br><input type="radio" name="nivel_css" value="2" required> Estoy
                 aprendiendo
-            <br><input type="radio" name="nivel_css" value="3" required> Tengo 
+            <br><input type="radio" name="nivel_css" value="3" required> Tengo
                 experiencia
-            <br><input type="radio" name="nivel_css" value="4" required> Lo 
+            <br><input type="radio" name="nivel_css" value="4" required> Lo
                 domino al dedillo
         </div>
         <div class="form-input">
             <label for="nivel_js">¿Cuál es tu nivel de JavaScript?</label>
             <input type="radio" name="nivel_js" value="1" required> Nada
-            <br><input type="radio" name="nivel_js" value="2" required> Estoy 
+            <br><input type="radio" name="nivel_js" value="2" required> Estoy
                 aprendiendo
-            <br><input type="radio" name="nivel_js" value="3" required> Tengo 
+            <br><input type="radio" name="nivel_js" value="3" required> Tengo
                 experiencia
-            <br><input type="radio" name="nivel_js" value="4" required> Lo domino al 
+            <br><input type="radio" name="nivel_js" value="4" required> Lo domino al
             dedillo
         </div>
         <div class="form-input">
             <label for="nivel_php">¿Cuál es tu nivel de PHP?</label>
             <input type="radio" name="nivel_php" value="1" required> Nada
-            <br><input type="radio" name="nivel_php" value="2" required> Estoy 
+            <br><input type="radio" name="nivel_php" value="2" required> Estoy
                 aprendiendo
-            <br><input type="radio" name="nivel_php" value="3" required> Tengo 
+            <br><input type="radio" name="nivel_php" value="3" required> Tengo
                 experiencia
-            <br><input type="radio" name="nivel_php" value="4" required> Lo domino 
+            <br><input type="radio" name="nivel_php" value="4" required> Lo domino
                 al dedillo
         </div>
         <div class="form-input">
             <label for="nivel_wp">¿Cuál es tu nivel de WordPress?</label>
             <input type="radio" name="nivel_wp" value="1" required> Nada
-            <br><input type="radio" name="nivel_wp" value="2" required> Estoy 
+            <br><input type="radio" name="nivel_wp" value="2" required> Estoy
             aprendiendo
-            <br><input type="radio" name="nivel_wp" value="3" required> Tengo 
+            <br><input type="radio" name="nivel_wp" value="3" required> Tengo
                 experiencia
-            <br><input type="radio" name="nivel_wp" value="4" required> Lo domino 
+            <br><input type="radio" name="nivel_wp" value="4" required> Lo domino
                 al dedillo
         </div>
         <div class="form-input">
-            <label for="motivacion">¿Porqué quieres aprender a programar en 
+            <label for="motivacion">¿Porqué quieres aprender a programar en
                     WordPress?</label>
             <textarea name="motivacion" id="motivacion" required></textarea>
         </div>
         <div class="form-input">
-            <label for="aceptacion">Mi nombre es Fulano de Tal y Cual y me 
-                comprometo a custodiar de manera responsable los datos que vas 
-                a enviar. Su única finalidad es la de participar en el proceso 
-                explicado más arriba. 
-                En cualquier momento puedes solicitar el acceso, la rectificación 
+            <label for="aceptacion">Mi nombre es Fulano de Tal y Cual y me
+                comprometo a custodiar de manera responsable los datos que vas
+                a enviar. Su única finalidad es la de participar en el proceso
+                explicado más arriba.
+                En cualquier momento puedes solicitar el acceso, la rectificación
                 o la eliminación de tus datos desde esta página web.</label>
-            <input type="checkbox" id="aceptacion" name="aceptacion" value="1" 
+            <input type="checkbox" id="aceptacion" name="aceptacion" value="1"
             required> Entiendo y acepto las condiciones
         </div>
         <div class="form-input">
@@ -198,61 +196,52 @@ function Kfp_Aspirante_form()
     return ob_get_clean();
 }
 
-// Aquí comienza la parte administrativa del plugin
 add_action("admin_menu", "Kfp_Aspirante_menu");
 
 /**
- * Agrega el menú del plugin al panel de administración
+ * Agrega el menú del plugin al formulario de WordPress
  *
  * @return void
  */
-function Kfp_Aspirante_menu() 
+function Kfp_Aspirante_menu()
 {
-    add_menu_page(
-        'Formulario Aspirantes', 'Aspirantes', 'manage_options', 
-        'kfp_aspirante_menu', 'Kfp_Aspirante_admin', 'dashicons-feedback'
-    );
+    add_menu_page("Formulario Aspirantes", "Aspirantes", "manage_options",
+        "kfp_aspirante_menu", "Kfp_Aspirante_admin", "dashicons-feedback", 75);
 }
 
-/**
- * Crea el contenido del panel de administración para el plugin
- *
- * @return void
- */
 function Kfp_Aspirante_admin()
 {
     global $wpdb;
     $tabla_aspirantes = $wpdb->prefix . 'aspirante';
+    $aspirantes = $wpdb->get_results("SELECT * FROM $tabla_aspirantes");
     echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
     echo '<table class="wp-list-table widefat fixed striped">';
-    echo '<thead><tr><th>Nombre</th><th>Correo</th>
-        <th>HTML</th><th>CSS</th><th>JS</th>
-        <th>PHP</th><th>WP</th><th>Total</th><th>Fecha</th></tr></thead>';
+    echo '<thead><tr><th width="30%">Nombre</th><th width="20%">Correo</th>';
+    echo '<th>HTML</th><th>CSS</th><th>JS</th><th>PHP</th><th>WP</th><th>Total</th>';
+    echo '</tr></thead>';
     echo '<tbody id="the-list">';
-    $aspirantes = $wpdb->get_results("SELECT * FROM $tabla_aspirantes");
-    foreach ( $aspirantes as $aspirante ) {
+    foreach ($aspirantes as $aspirante) {
         $nombre = esc_textarea($aspirante->nombre);
         $correo = esc_textarea($aspirante->correo);
         $motivacion = esc_textarea($aspirante->motivacion);
-        $nivel_html = (int)$aspirante->nivel_html;
-        $nivel_css = (int)$aspirante->nivel_css;
-        $nivel_js = (int)$aspirante->nivel_js;
-        $nivel_php = (int)$aspirante->nivel_php;
-        $nivel_wp = (int)$aspirante->nivel_wp;
+        $nivel_html = (int) $aspirante->nivel_html;
+        $nivel_css = (int) $aspirante->nivel_css;
+        $nivel_js = (int) $aspirante->nivel_js;
+        $nivel_php = (int) $aspirante->nivel_php;
+        $nivel_wp = (int) $aspirante->nivel_wp;
         $total = $nivel_html + $nivel_css + $nivel_js + $nivel_php + $nivel_wp;
-        $fecha = date('d-m-Y H:i:s', strtotime($aspirante->created_at));
-        echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>
-            <td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>
-            <td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>
-            <td>$total</td><td>$fecha</td></tr>";
+        echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>";
+        echo "<td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>";
+        echo "<td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>";
+        echo "<td>$total</td></tr>";
     }
     echo '</tbody></table></div>';
 }
 
 /**
- * Devuelve la IP del usuario que está visitando la página 
+ * Devuelve la IP del usuario que está visitando la página
  * Código fuente: https://stackoverflow.com/questions/6717926/function-to-get-user-ip-address
- * 
+ *
  * @return string
  */
 function Kfp_Obtener_IP_usuario()
