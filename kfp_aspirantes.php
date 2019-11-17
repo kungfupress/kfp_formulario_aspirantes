@@ -233,7 +233,11 @@ function Kfp_Aspirante_admin()
         echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>";
         echo "<td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>";
         echo "<td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>";
-        echo "<td>$total</td></tr>";
+		echo "<td>$total</td>";
+		$url_borrar = admin_url('admin-post.php') . '?action=borra_aspirante&id='
+			. $aspirante->id;
+		echo "<td><a href='$url_borrar'>Borrar</a></td>";
+		echo "</tr>";
     }
     echo '</tbody></table></div>';
 }
@@ -257,4 +261,31 @@ function Kfp_Obtener_IP_usuario()
             }
         }
     }
+}
+
+// Vincula la función de borrado con un hook de admin_post
+add_action('admin_post_borra_aspirante', 'Kfp_Borra_Aspirante');
+/**
+ * Borra un registro de aspirante usando admin-post.php
+ * 
+ * @return void
+ */
+function Kfp_Borra_Aspirante()
+{
+	global $wpdb;
+	$url_origen = admin_url('admin.php') . '?page=kfp_aspirante_menu';
+	// && current_user_can('manage_options')
+	if (isset($_GET['id']) && current_user_can('manage_options')) {
+		$id = (int) $_GET['id'];
+		$tabla_aspirantes = $wpdb->prefix . 'aspirante';
+		$wpdb->delete($tabla_aspirantes, array('id' => $id));
+		$status = 'success';
+	} else {
+		$status = 'error';
+	}
+	wp_safe_redirect(
+		esc_url_raw(
+			add_query_arg( 'kfp_aspirante_status', $status, $url_origen )
+		)
+	);
 }
