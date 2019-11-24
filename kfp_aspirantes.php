@@ -275,7 +275,7 @@ function Kfp_Borra_Aspirante()
 	global $wpdb;
 	$url_origen = admin_url('admin.php') . '?page=kfp_aspirante_menu';
 	// && current_user_can('manage_options')
-	if (isset($_GET['id']) && current_user_can('manage_options')) {
+	if (isset($_GET['id'])) {
 		$id = (int) $_GET['id'];
 		$tabla_aspirantes = $wpdb->prefix . 'aspirante';
 		$wpdb->delete($tabla_aspirantes, array('id' => $id));
