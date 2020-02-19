@@ -71,10 +71,6 @@ function Kfp_Aspirante_form()
         && is_email($_POST['correo'])
         && $_POST['cedula'] != ''
         && $_POST['nivel_html'] != ''
-        && $_POST['nivel_css'] != ''
-        && $_POST['nivel_js'] != ''
-        && $_POST['nivel_php'] != ''
-        && $_POST['nivel_wp'] != ''
         && $_POST['aceptacion'] == '1'
     ) {
         $tabla_aspirantes = $wpdb->prefix . 'aspirante';
@@ -82,10 +78,6 @@ function Kfp_Aspirante_form()
         $correo = $_POST['correo'];
         $cedula = sanitize_text_field( $_POST['cedula'] );
         $nivel_html = (int) $_POST['nivel_html'];
-        $nivel_css = (int) $_POST['nivel_css'];
-        $nivel_js = (int) $_POST['nivel_js'];
-        $nivel_php = (int) $_POST['nivel_php'];
-        $nivel_wp = (int) $_POST['nivel_wp'];
         $motivacion = sanitize_text_field($_POST['motivacion']);
         $aceptacion = (int) $_POST['aceptacion'];
         $ip = Kfp_Obtener_IP_usuario();
@@ -98,10 +90,6 @@ function Kfp_Aspirante_form()
                 'correo' => $correo,
                 'cedula' => $cedula,
                 'nivel_html' => $nivel_html,
-                'nivel_css' => $nivel_css,
-                'nivel_js' => $nivel_js,
-                'nivel_php' => $nivel_php,
-                'nivel_wp' => $nivel_wp,
                 'motivacion' => $motivacion,
                 'aceptacion' => $aceptacion,
                 'ip' => $ip,
@@ -189,7 +177,7 @@ function Kfp_Aspirante_admin()
     echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
     echo '<table class="wp-list-table widefat fixed striped">';
     echo '<thead><tr><th width="20%">Nombre</th><th width="15%">Correo</th><th width="15%">Cédula</th>';
-    echo '<th>HTML</th><th>CSS</th><th>JS</th><th>PHP</th><th>WP</th><th>Total</th>';
+    echo '<th>HTML</th><th>Total</th>';
     echo '</tr></thead>';
     echo '<tbody id="the-list">';
     foreach ($aspirantes as $aspirante) {
@@ -198,14 +186,9 @@ function Kfp_Aspirante_admin()
         $cedula = esc_textarea($aspirante->cedula);
         $motivacion = esc_textarea($aspirante->motivacion);
         $nivel_html = (int) $aspirante->nivel_html;
-        $nivel_css = (int) $aspirante->nivel_css;
-        $nivel_js = (int) $aspirante->nivel_js;
-        $nivel_php = (int) $aspirante->nivel_php;
-        $nivel_wp = (int) $aspirante->nivel_wp;
-        $total = $nivel_html + $nivel_css + $nivel_js + $nivel_php + $nivel_wp;
+        $total = $nivel_html ;
         echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>";
-        echo "<td>$correo</td><td>$cedula</td><td>$nivel_html</td><td>$nivel_css</td>";
-        echo "<td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>";
+        echo "<td>$correo</td><td>$cedula</td><td>$nivel_html</td>";
         echo "<td>$total</td></tr>";
     }
     echo '</tbody></table></div>';
