@@ -32,3 +32,11 @@ p.error {
     border: 2px solid red;
     background: #ff8787;
 }
+
+input.valid{
+    background: #9deb91;
+}
+
+input.invalid{
+    background: #eb91ae;
+}

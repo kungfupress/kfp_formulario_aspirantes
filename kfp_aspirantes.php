@@ -31,6 +31,7 @@ function Kfp_Aspirante_init()
     $query = "CREATE TABLE IF NOT EXISTS $tabla_aspirantes (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         nombre varchar(40) NOT NULL,
+        cedula varchar(12) NOT NULL,
         correo varchar(100) NOT NULL,
         nivel_html smallint(4) NOT NULL,
         nivel_css smallint(4) NOT NULL,
@@ -68,6 +69,7 @@ function Kfp_Aspirante_form()
     if (!empty($_POST)
         && $_POST['nombre'] != ''
         && is_email($_POST['correo'])
+        && $_POST['cedula'] != ''
         && $_POST['nivel_html'] != ''
         && $_POST['nivel_css'] != ''
         && $_POST['nivel_js'] != ''
@@ -78,6 +80,7 @@ function Kfp_Aspirante_form()
         $tabla_aspirantes = $wpdb->prefix . 'aspirante';
         $nombre = sanitize_text_field($_POST['nombre']);
         $correo = $_POST['correo'];
+        $cedula = sanitize_text_field( $_POST['cedula'] );
         $nivel_html = (int) $_POST['nivel_html'];
         $nivel_css = (int) $_POST['nivel_css'];
         $nivel_js = (int) $_POST['nivel_js'];
@@ -93,6 +96,7 @@ function Kfp_Aspirante_form()
             array(
                 'nombre' => $nombre,
                 'correo' => $correo,
+                'cedula' => $cedula,
                 'nivel_html' => $nivel_html,
                 'nivel_css' => $nivel_css,
                 'nivel_js' => $nivel_js,
@@ -108,8 +112,10 @@ function Kfp_Aspirante_form()
             por tu interés. En breve contactaré contigo.<p>";
     }
     // Carga esta hoja de estilo para poner más bonito el formulario
-    wp_enqueue_style('css_aspirante', plugins_url('style.css', __FILE__));
-    ob_start();
+    wp_enqueue_style( 'css_aspirante', plugins_url( 'style.css', __FILE__ ) );
+    // Carga el script que valida la cédula de identidad
+    wp_enqueue_script( 'js_cedula', plugins_url( 'cedula-uruguay.js', __FILE__ ), array( 'jquery' ), '1.1', true );
+    ob_start(); 
     ?>
     <form action="<?php get_the_permalink();?>" method="post" id="form_aspirante"
         class="cuestionario">
@@ -123,6 +129,12 @@ function Kfp_Aspirante_form()
             <input type="email" name="correo" id="correo" required>
         </div>
         <div class="form-input">
+            <label for='cedula'>Cédula</label>
+            <input type="text" id="ci" name="cedula" id="cedula" required 
+                placeholder="0.000.000-0">
+        </div>
+        
+        <div class="form-input">
             <label for="nivel_html">¿Cuál es tu nivel de HTML?</label>
             <input type="radio" name="nivel_html" value="1" required> Nada
             <br><input type="radio" name="nivel_html" value="2" required> Estoy
@@ -131,46 +143,6 @@ function Kfp_Aspirante_form()
                 experiencia
             <br><input type="radio" name="nivel_html" value="4" required> Lo
                 domino al dedillo
-        </div>
-        <div class="form-input">
-            <label for="nivel_css">¿Cuál es tu nivel de CSS?</label>
-            <input type="radio" name="nivel_css" value="1" required> Nada
-            <br><input type="radio" name="nivel_css" value="2" required> Estoy
-                aprendiendo
-            <br><input type="radio" name="nivel_css" value="3" required> Tengo
-                experiencia
-            <br><input type="radio" name="nivel_css" value="4" required> Lo
-                domino al dedillo
-        </div>
-        <div class="form-input">
-            <label for="nivel_js">¿Cuál es tu nivel de JavaScript?</label>
-            <input type="radio" name="nivel_js" value="1" required> Nada
-            <br><input type="radio" name="nivel_js" value="2" required> Estoy
-                aprendiendo
-            <br><input type="radio" name="nivel_js" value="3" required> Tengo
-                experiencia
-            <br><input type="radio" name="nivel_js" value="4" required> Lo domino al
-            dedillo
-        </div>
-        <div class="form-input">
-            <label for="nivel_php">¿Cuál es tu nivel de PHP?</label>
-            <input type="radio" name="nivel_php" value="1" required> Nada
-            <br><input type="radio" name="nivel_php" value="2" required> Estoy
-                aprendiendo
-            <br><input type="radio" name="nivel_php" value="3" required> Tengo
-                experiencia
-            <br><input type="radio" name="nivel_php" value="4" required> Lo domino
-                al dedillo
-        </div>
-        <div class="form-input">
-            <label for="nivel_wp">¿Cuál es tu nivel de WordPress?</label>
-            <input type="radio" name="nivel_wp" value="1" required> Nada
-            <br><input type="radio" name="nivel_wp" value="2" required> Estoy
-            aprendiendo
-            <br><input type="radio" name="nivel_wp" value="3" required> Tengo
-                experiencia
-            <br><input type="radio" name="nivel_wp" value="4" required> Lo domino
-                al dedillo
         </div>
         <div class="form-input">
             <label for="motivacion">¿Porqué quieres aprender a programar en
@@ -216,13 +188,14 @@ function Kfp_Aspirante_admin()
     $aspirantes = $wpdb->get_results("SELECT * FROM $tabla_aspirantes");
     echo '<div class="wrap"><h1>Lista de aspirantes</h1>';
     echo '<table class="wp-list-table widefat fixed striped">';
-    echo '<thead><tr><th width="30%">Nombre</th><th width="20%">Correo</th>';
+    echo '<thead><tr><th width="20%">Nombre</th><th width="15%">Correo</th><th width="15%">Cédula</th>';
     echo '<th>HTML</th><th>CSS</th><th>JS</th><th>PHP</th><th>WP</th><th>Total</th>';
     echo '</tr></thead>';
     echo '<tbody id="the-list">';
     foreach ($aspirantes as $aspirante) {
         $nombre = esc_textarea($aspirante->nombre);
         $correo = esc_textarea($aspirante->correo);
+        $cedula = esc_textarea($aspirante->cedula);
         $motivacion = esc_textarea($aspirante->motivacion);
         $nivel_html = (int) $aspirante->nivel_html;
         $nivel_css = (int) $aspirante->nivel_css;
@@ -231,7 +204,7 @@ function Kfp_Aspirante_admin()
         $nivel_wp = (int) $aspirante->nivel_wp;
         $total = $nivel_html + $nivel_css + $nivel_js + $nivel_php + $nivel_wp;
         echo "<tr><td><a href='#' title='$motivacion'>$nombre</a></td>";
-        echo "<td>$correo</td><td>$nivel_html</td><td>$nivel_css</td>";
+        echo "<td>$correo</td><td>$cedula</td><td>$nivel_html</td><td>$nivel_css</td>";
         echo "<td>$nivel_js</td><td>$nivel_php</td><td>$nivel_wp</td>";
         echo "<td>$total</td></tr>";
     }
